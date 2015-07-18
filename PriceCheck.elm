@@ -1,44 +1,31 @@
-import Http
-import Json.Decode as Json exposing ((:=))
-import Html exposing (Html, div, button, text)
-import Html.Events exposing (onClick)
+import Signal
+import Graphics.Element exposing (Element, show)
 import Task exposing (Task, andThen)
-import Markdown
+import Http exposing (..)
+import Json.Decode as Json
 
 
---main : Signal Html
+main : Signal Element
 main =
-  Signal.map Markdown.toHtml readme.signal
+  Signal.map show contentMailbox.signal
 
 
--- set up mailbox
---   the signal is piped directly to main
---   the address lets us update the signal
-readme : Signal.Mailbox String
-readme =
+contentMailbox : Signal.Mailbox (String)
+contentMailbox =
   Signal.mailbox ""
 
 
--- send some markdown to our readme mailbox
-report : String -> Task x ()
-report markdown =
-  Signal.send readme.address markdown
+sendToMailbox : String -> Task x ()
+sendToMailbox content =
+  Signal.send contentMailbox.address content
 
 
 -- get the readme *and then* send the result to our mailbox
-port fetchReadme : Task Http.Error ()
-port fetchReadme =
-  Http.getString readmeUrl `andThen` report
+port fetchItem : Task Http.Error ()
+port fetchItem =
+  Http.getString itemUrl `andThen` sendToMailbox
 
 
--- the URL of the README.md that we desire
-readmeUrl : String
-readmeUrl =
-  "http://package.elm-lang.org/packages/elm-lang/core/latest/README.md"
-
-
-lookup : Task Http.Error String
-lookup =
-    Http.getString "https://itunes.apple.com/lookup?id=422876559"
-
-
+itemUrl : String
+itemUrl =
+  "https://itunes.apple.com/lookup?id=422876559"

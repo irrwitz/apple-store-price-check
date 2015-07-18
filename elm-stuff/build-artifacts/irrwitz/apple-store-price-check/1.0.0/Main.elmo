@@ -10,32 +10,30 @@ Elm.Main.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "Main",
    $Basics = Elm.Basics.make(_elm),
+   $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Http = Elm.Http.make(_elm),
    $List = Elm.List.make(_elm),
-   $Markdown = Elm.Markdown.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Task = Elm.Task.make(_elm);
-   var lookup = $Http.getString("https://itunes.apple.com/lookup?id=422876559");
-   var readmeUrl = "http://package.elm-lang.org/packages/elm-lang/core/latest/README.md";
-   var readme = $Signal.mailbox("");
-   var report = function (markdown) {
+   var itemUrl = "https://itunes.apple.com/lookup?id=422876559";
+   var contentMailbox = $Signal.mailbox("");
+   var sendToMailbox = function (content) {
       return A2($Signal.send,
-      readme.address,
-      markdown);
+      contentMailbox.address,
+      content);
    };
-   var fetchReadme = Elm.Native.Task.make(_elm).perform(A2($Task.andThen,
-   $Http.getString(readmeUrl),
-   report));
+   var fetchItem = Elm.Native.Task.make(_elm).perform(A2($Task.andThen,
+   $Http.getString(itemUrl),
+   sendToMailbox));
    var main = A2($Signal.map,
-   $Markdown.toHtml,
-   readme.signal);
+   $Graphics$Element.show,
+   contentMailbox.signal);
    _elm.Main.values = {_op: _op
                       ,main: main
-                      ,readme: readme
-                      ,report: report
-                      ,readmeUrl: readmeUrl
-                      ,lookup: lookup};
+                      ,contentMailbox: contentMailbox
+                      ,sendToMailbox: sendToMailbox
+                      ,itemUrl: itemUrl};
    return _elm.Main.values;
 };
