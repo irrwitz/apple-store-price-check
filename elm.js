@@ -3493,20 +3493,40 @@ Elm.Main.make = function (_elm) {
    $Basics = Elm.Basics.make(_elm),
    $Graphics$Element = Elm.Graphics.Element.make(_elm),
    $Http = Elm.Http.make(_elm),
+   $Json$Decode = Elm.Json.Decode.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Task = Elm.Task.make(_elm);
-   var itemUrl = "https://itunes.apple.com/lookup?id=422876559";
-   var contentMailbox = $Signal.mailbox("");
+   var app = function () {
+      var place = A3($Json$Decode.object2,
+      F2(function (name,price) {
+         return A2($Basics._op["++"],
+         name,
+         A2($Basics._op["++"],
+         ": ",
+         price));
+      }),
+      A2($Json$Decode._op[":="],
+      "trackName",
+      $Json$Decode.string),
+      A2($Json$Decode._op[":="],
+      "formattedPrice",
+      $Json$Decode.string));
+      return A2($Json$Decode._op[":="],
+      "results",
+      $Json$Decode.list(place));
+   }();
+   var itemUrl = "https://itunes.apple.com/lookup?id=881270303";
+   var contentMailbox = $Signal.mailbox(_L.fromArray([""]));
    var sendToMailbox = function (content) {
       return A2($Signal.send,
       contentMailbox.address,
       content);
    };
    var fetchItem = Elm.Native.Task.make(_elm).perform(A2($Task.andThen,
-   $Http.getString(itemUrl),
+   A2($Http.get,app,itemUrl),
    sendToMailbox));
    var main = A2($Signal.map,
    $Graphics$Element.show,
@@ -3515,7 +3535,8 @@ Elm.Main.make = function (_elm) {
                       ,main: main
                       ,contentMailbox: contentMailbox
                       ,sendToMailbox: sendToMailbox
-                      ,itemUrl: itemUrl};
+                      ,itemUrl: itemUrl
+                      ,app: app};
    return _elm.Main.values;
 };
 Elm.Maybe = Elm.Maybe || {};
