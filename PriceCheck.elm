@@ -2,7 +2,10 @@ import Signal
 import Graphics.Element exposing (Element, show)
 import Task exposing (Task, andThen)
 import Http exposing (..)
-import Json.Decode as Json exposing ((:=))
+import Json.Decode as Json exposing (Decoder, (:=))
+import Html exposing (..)
+
+-- Models
 
 appIds : List Int
 appIds = [ 881270303 -- xcom
@@ -16,10 +19,19 @@ appIds = [ 881270303 -- xcom
          ]
 
 
-main : Signal Element
-main =
-  Signal.map show contentMailbox.signal
+type alias Result =
+  { apps : List App
+  }
 
+
+type alias App =
+  { name  : String
+  , price : String
+  }
+
+
+
+-- Update
 
 contentMailbox : Signal.Mailbox (List String)
 contentMailbox =
@@ -36,16 +48,31 @@ port fetchItem : Task Http.Error ()
 port fetchItem =
   Http.get app itemUrl `andThen` sendToMailbox
 
+
 itemStoreUrl : Int -> String
 itemStoreUrl appId =
-  "https://itunes.apple.com/lookup?country=ch&id=" ++ appId.toString a
+  "https://itunes.apple.com/lookup?country=ch&id=" ++ (toString appId)
+
 
 itemUrl : String
 itemUrl =
   "https://itunes.apple.com/lookup?country=ch&id=881270303"
 
 
-app : Json.Decoder (List String)
+appDecoder : Decoder App
+appDecoder =
+  Json.object2 App
+    ("trackName" := Json.string)
+    ("formattedPrice" := Json.string)
+
+
+resultDecoder : Decoder Result
+resultDecoder =
+  Json.object1 Result
+    ("results" := Json.list appDecoder)
+
+
+app : Decoder (List String)
 app =
   let place =
         Json.object2 (\name price -> name ++ ": " ++ price)
@@ -53,3 +80,18 @@ app =
           ("formattedPrice" := Json.string)
   in
       "results" := Json.list place
+
+
+-- View
+
+view : App -> Html
+view model = div [ ]
+    [ text ("App: " ++ model.name ++ ", Price" ++ model.price)
+    ]
+
+
+-- Run entry
+
+main : Signal Element
+main =
+  Signal.map show contentMailbox.signal
