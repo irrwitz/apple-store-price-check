@@ -30,40 +30,20 @@ Elm.Main.make = function (_elm) {
       ", Price",
       model.price))))]));
    };
-   var app = function () {
-      var place = A3($Json$Decode.object2,
-      F2(function (name,price) {
-         return A2($Basics._op["++"],
-         name,
-         A2($Basics._op["++"],
-         ": ",
-         price));
-      }),
-      A2($Json$Decode._op[":="],
-      "trackName",
-      $Json$Decode.string),
-      A2($Json$Decode._op[":="],
-      "formattedPrice",
-      $Json$Decode.string));
-      return A2($Json$Decode._op[":="],
-      "results",
-      $Json$Decode.list(place));
-   }();
    var itemUrl = "https://itunes.apple.com/lookup?country=ch&id=881270303";
    var itemStoreUrl = function (appId) {
       return A2($Basics._op["++"],
       "https://itunes.apple.com/lookup?country=ch&id=",
       $Basics.toString(appId));
    };
-   var contentMailbox = $Signal.mailbox(_L.fromArray([""]));
+   var contentMailbox = $Signal.mailbox(_L.fromArray([{_: {}
+                                                      ,name: ""
+                                                      ,price: "0.0"}]));
    var sendToMailbox = function (content) {
       return A2($Signal.send,
       contentMailbox.address,
       content);
    };
-   var fetchItem = Elm.Native.Task.make(_elm).perform(A2($Task.andThen,
-   A2($Http.get,app,itemUrl),
-   sendToMailbox));
    var main = A2($Signal.map,
    $Graphics$Element.show,
    contentMailbox.signal);
@@ -80,14 +60,14 @@ Elm.Main.make = function (_elm) {
    A2($Json$Decode._op[":="],
    "formattedPrice",
    $Json$Decode.string));
-   var Result = function (a) {
-      return {_: {},apps: a};
-   };
-   var resultDecoder = A2($Json$Decode.object1,
-   Result,
-   A2($Json$Decode._op[":="],
+   var resultDecoder = A2($Json$Decode._op[":="],
    "results",
-   $Json$Decode.list(appDecoder)));
+   $Json$Decode.list(appDecoder));
+   var fetchItem = Elm.Native.Task.make(_elm).perform(A2($Task.andThen,
+   A2($Http.get,
+   resultDecoder,
+   itemUrl),
+   sendToMailbox));
    var appIds = _L.fromArray([881270303
                              ,911006986
                              ,980307863
@@ -98,7 +78,6 @@ Elm.Main.make = function (_elm) {
                              ,395680819]);
    _elm.Main.values = {_op: _op
                       ,appIds: appIds
-                      ,Result: Result
                       ,App: App
                       ,contentMailbox: contentMailbox
                       ,sendToMailbox: sendToMailbox
@@ -106,7 +85,6 @@ Elm.Main.make = function (_elm) {
                       ,itemUrl: itemUrl
                       ,appDecoder: appDecoder
                       ,resultDecoder: resultDecoder
-                      ,app: app
                       ,view: view
                       ,main: main};
    return _elm.Main.values;

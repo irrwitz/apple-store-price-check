@@ -19,11 +19,6 @@ appIds = [ 881270303 -- xcom
          ]
 
 
-type alias Result =
-  { apps : List App
-  }
-
-
 type alias App =
   { name  : String
   , price : String
@@ -33,12 +28,12 @@ type alias App =
 
 -- Update
 
-contentMailbox : Signal.Mailbox (List String)
+contentMailbox : Signal.Mailbox (List App)
 contentMailbox =
-  Signal.mailbox [""]
+  Signal.mailbox [{ name = "", price = "0.0"}]
 
 
-sendToMailbox : List String -> Task x ()
+sendToMailbox : List App -> Task x ()
 sendToMailbox content =
   Signal.send contentMailbox.address content
 
@@ -46,7 +41,7 @@ sendToMailbox content =
 -- get the readme *and then* send the result to our mailbox
 port fetchItem : Task Http.Error ()
 port fetchItem =
-  Http.get app itemUrl `andThen` sendToMailbox
+  Http.get resultDecoder itemUrl `andThen` sendToMailbox
 
 
 itemStoreUrl : Int -> String
@@ -66,20 +61,10 @@ appDecoder =
     ("formattedPrice" := Json.string)
 
 
-resultDecoder : Decoder Result
+resultDecoder : Decoder (List App)
 resultDecoder =
-  Json.object1 Result
-    ("results" := Json.list appDecoder)
+  ("results" := Json.list appDecoder)
 
-
-app : Decoder (List String)
-app =
-  let place =
-        Json.object2 (\name price -> name ++ ": " ++ price)
-          ("trackName" := Json.string)
-          ("formattedPrice" := Json.string)
-  in
-      "results" := Json.list place
 
 
 -- View
