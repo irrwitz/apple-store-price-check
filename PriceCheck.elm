@@ -4,9 +4,10 @@ import Task exposing (Task, andThen)
 import Http exposing (..)
 import Json.Decode as Json exposing (Decoder, (:=))
 import Html exposing (..)
+import Html.Attributes exposing (class)
+
 
 -- Models
-
 appIds : List Int
 appIds = [ 881270303 -- xcom
          , 911006986 -- banner saga
@@ -25,9 +26,7 @@ type alias App =
   }
 
 
-
 -- Update
-
 contentMailbox : Signal.Mailbox (List App)
 contentMailbox =
   Signal.mailbox [{ name = "", price = "0.0"}]
@@ -66,17 +65,18 @@ resultDecoder =
   ("results" := Json.list appDecoder)
 
 
-
 -- View
+view : List App -> Html
+view apps =
+  ul [class "foo"]
+    (List.map singleAppView apps)
 
-view : App -> Html
-view model = div [ ]
-    [ text ("App: " ++ model.name ++ ", Price" ++ model.price)
-    ]
+
+singleAppView : App -> Html
+singleAppView app =
+  li [] [text (app.name ++ ", " ++ app.price)]
 
 
 -- Run entry
-
-main : Signal Element
 main =
-  Signal.map show contentMailbox.signal
+  Signal.map view contentMailbox.signal
