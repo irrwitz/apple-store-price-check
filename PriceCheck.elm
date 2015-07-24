@@ -29,7 +29,7 @@ type alias App =
 -- Update
 contentMailbox : Signal.Mailbox (List App)
 contentMailbox =
-  Signal.mailbox [{ name = "", price = "0.0"}]
+  Signal.mailbox []
 
 
 sendToMailbox : List App -> Task x ()
