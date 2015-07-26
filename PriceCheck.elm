@@ -37,10 +37,19 @@ sendToMailbox content =
   Signal.send contentMailbox.address content
 
 
--- get the readme *and then* send the result to our mailbox
 port fetchItem : Task Http.Error ()
 port fetchItem =
   Http.get resultDecoder itemUrl `andThen` sendToMailbox
+
+
+createTasks : String -> Task Error ()
+createTasks url =
+  Http.get resultDecoder url `andThen` sendToMailbox
+
+
+urls : List String
+urls =
+  List.map itemStoreUrl appIds
 
 
 itemStoreUrl : Int -> String
