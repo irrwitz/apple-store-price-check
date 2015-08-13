@@ -6,6 +6,7 @@ import Json.Decode as Json exposing (Decoder, (:=))
 import Html exposing (..)
 import Html.Attributes exposing (class)
 
+-- Inspiration https://gist.github.com/TheSeamau5/1dc5597a2e3b7ae5f33e
 
 -- Models
 appIds : List Int
@@ -26,6 +27,14 @@ type alias App =
   }
 
 
+type alias Model =
+  List App
+
+
+initialModel : Model
+initialModel = []
+
+
 -- Update
 contentMailbox : Signal.Mailbox (List App)
 contentMailbox =
@@ -42,7 +51,7 @@ port fetchItem =
   Http.get resultDecoder itemUrl `andThen` sendToMailbox
 
 
-createTasks : String -> Task Error ()
+createTasks : String -> Task Http.Error ()
 createTasks url =
   Http.get resultDecoder url `andThen` sendToMailbox
 
@@ -62,6 +71,9 @@ itemUrl =
   "https://itunes.apple.com/lookup?country=ch&id=881270303"
 
 
+{--
+  JSON Decoding
+--}
 appDecoder : Decoder App
 appDecoder =
   Json.object2 App
@@ -75,15 +87,15 @@ resultDecoder =
 
 
 -- View
-view : List App -> Html
-view apps =
-  ul [class "foo"]
-    (List.map singleAppView apps)
-
-
 singleAppView : App -> Html
 singleAppView app =
   li [] [text (app.name ++ ", " ++ app.price)]
+
+
+view : Model -> Html
+view apps =
+  ul [class "foo"]
+    (List.map singleAppView apps)
 
 
 -- Run entry
