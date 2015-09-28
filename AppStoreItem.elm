@@ -13,6 +13,7 @@ type alias App =
 getPriceTask : String -> Task Error (List App)
 getPriceTask appId = Http.get resultDecoder (itemStoreUrl appId)
 
+
 itemStoreUrl : String -> String
 itemStoreUrl appId =
   "https://itunes.apple.com/lookup?country=ch&id=" ++ appId
