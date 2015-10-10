@@ -1,6 +1,7 @@
 module AppStoreItem where
 
 import Http exposing (..)
+import Html exposing (..)
 import Task exposing (Task, andThen)
 import Json.Decode as Json exposing (Decoder, (:=))
 
@@ -18,6 +19,13 @@ itemStoreUrl : String -> String
 itemStoreUrl appId =
   "https://itunes.apple.com/lookup?country=ch&id=" ++ appId
 
+
+{--
+  Html view
+--}
+appView : App -> Html
+appView app =
+  li [] [text (app.name ++ ", " ++ app.price)]
 
 {--
   JSON Decoding
