@@ -6,19 +6,18 @@ import Task exposing (Task, andThen)
 import Json.Decode as Json exposing (Decoder, (:=))
 
 type alias App =
-  { name  : String
+  { id    : Int
+  , name  : String
   , price : String
   }
 
 
-getPriceTask : String -> Task Error (List App)
-getPriceTask appId = Http.get resultDecoder (itemStoreUrl appId)
-
-
-itemStoreUrl : String -> String
-itemStoreUrl appId =
-  "https://itunes.apple.com/lookup?country=ch&id=" ++ appId
-
+getPriceTask : App -> Task Error (List App)
+getPriceTask app =
+  let
+    url = "https://itunes.apple.com/lookup?country=ch&id=" ++ toString app.id
+  in
+    Http.get resultDecoder url
 
 {--
   Html view
@@ -32,7 +31,8 @@ appView app =
 --}
 appDecoder : Decoder App
 appDecoder =
-  Json.object2 App
+  Json.object3 App
+    ("trackId" := Json.int)
     ("trackName" := Json.string)
     ("formattedPrice" := Json.string)
 

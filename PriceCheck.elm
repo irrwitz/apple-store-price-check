@@ -6,18 +6,15 @@ import Html.Attributes exposing (class)
 import Debug exposing (..)
 import AppStoreItem exposing (appView, App, getPriceTask)
 
-
-appIds : List String
-appIds = [ "881270303" -- xcom
-         , "911006986" -- banner saga
-         , "980307863" -- tales from deep space
-         , "978524071" -- grim fandango
-         , "680366065" -- device 6
-         , "895869909" -- the sailor's dream
-         , "555916407" --year walk
-         , "395680819" -- av player
-         ]
-
+apps : List App
+apps = [ { id = 881270303, name = "", price = "" }
+       , { id = 911006986, name = "", price = "" }
+       , { id = 978524071, name = "", price = "" }
+       , { id = 680366065, name = "", price = "" }
+       , { id = 895869909, name = "", price = "" }
+       , { id = 555916407, name = "", price = "" }
+       , { id = 395680819, name = "", price = "" }
+       ]
 
 type alias Model =
   List App
@@ -44,7 +41,7 @@ port fetchItem =
 
 
 allTasks : List (Task Http.Error (List App))
-allTasks = List.map getPriceTask appIds
+allTasks = List.map getPriceTask apps
 
 
 sequenceAllTasks : Task Http.Error ()
